@@ -30,7 +30,24 @@ function (roads, car, packages)
   
   manhattan_matrix <- calc_manhattan(car$x, car$y, dim(roads$hroads)[2])
   
-  # Now implement my frontier: 
+  # Calculate the manhattan distance to the package (or the delivery spot):
+  if (offset == 0) {
+    manhatt_dist <- manhattan_matrix[packages[toGo,1],packages[toGo,2]]
+    # Now implement my first frontier and expanded node: 
+    frontier <- list(a = list(position = list(x = car$x, y = car$y), path_cost = 0, manhatt_dist = manhatt_dist, 
+                              visited_nodes = list()))
+    currently_expanded <- list()
+    
+    
+  } 
+  else {
+    manhatt_dist <- manhattan_matrix[packages[toGo,3],packages[toGo,4]]
+  }
+  
+  
+  
+  
+
   
   
   if (car$x < packages[toGo, 1 + offset]) {
