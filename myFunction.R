@@ -36,8 +36,18 @@ function (roads, car, packages)
     # Now implement my first frontier and expanded node: 
     frontier <- list(a = list(position = list(x = car$x, y = car$y), path_cost = 0, manhatt_dist = manhatt_dist, 
                               visited_nodes = list()))
-    currently_expanded <- list()
+    currently_expanded <- frontier$a
     
+    while (currently_expanded$position$x != packages[toGo,1] && currently_expanded$position$y != packages[toGo,2]) {
+      # lös hörngrejerna på något sätt! 
+      scores=sapply(frontier, function(item) item$path_cost+item$manhatt_dist)
+      best_index=which.min(scores)
+      
+      currently_expanded <- append(currently_expanded, list(names(frontier)[best_index] = frontier[best_index]))
+      # Not sure if the above name thing works. Test this. Also left to do: 
+      # define the borders of the graphs, which are conected to which etc. We need to have some kind of updating 
+      # of the frontier in some way! 
+    }
     
   } 
   else {
