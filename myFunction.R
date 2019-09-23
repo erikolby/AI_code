@@ -5,7 +5,8 @@ function (roads, car, packages)
   offset = 0 
   
   if (car$load == 0) {
-    toGo = which(packages[, 5] == 0)[1] # Says which package is the closest. 
+    toGo = which(packages[, 5] == 0)[1] # Says which package is the closest. (apperently not, change this to implement the 
+    # manhattan distance).
     # OBS: a future implementation could be to not just take the closest package. BUT the package which has the lowest 
     # route cost. Then change this if loop and the below else. 
   }
@@ -28,25 +29,45 @@ function (roads, car, packages)
     return(final_matrix)
   }
   
-  manhattan_matrix <- calc_manhattan(car$x, car$y, dim(roads$hroads)[2])
-  
   # Calculate the manhattan distance to the package (or the delivery spot):
   if (offset == 0) {
-    manhatt_dist <- manhattan_matrix[packages[toGo,1],packages[toGo,2]]
+    manhattan_matrix <- calc_manhattan(packages[toGo,1], packages[toGo,2], dim(roads$hroads)[2])
+    manhatt_dist <- manhattan_matrix[car$x,car$y]
     # Now implement my first frontier and expanded node: 
-    frontier <- list(a = list(position = list(x = car$x, y = car$y), path_cost = 0, manhatt_dist = manhatt_dist, 
-                              visited_nodes = list()))
-    currently_expanded <- frontier$a
     
-    while (currently_expanded$position$x != packages[toGo,1] && currently_expanded$position$y != packages[toGo,2]) {
+    frontier <- list(list(position = list(x = car$x, y = car$y), path_cost = 0, manhatt_dist = manhatt_dist, 
+                              visited_nodes = list()))
+    currently_expanded <- frontier[[1]]
+    
+    # Gör snarare frontier till bara en list() och kör ovan frontier definition till currently_expended. 
+    
+    #defining the goal node: 
+    goal_node <- c(packages[toGo,1], packages[toGo,2])
+    
+    while (currently_expanded[[1]]$position$x != goal_node[1] && currently_expanded[[1]]$position$y != goal_node[2]) {
       # lös hörngrejerna på något sätt! 
+      
+      if (currently_expanded[[1]]$position$x == 1 && currently_expanded[[1]]$position$y == 1) { # Can remove this offset (it is 0)
+        #nextMove = 6
+        right_road <- currently_expanded[[1]]$position$x
+        frontier <- append(frontier,list(list(position = list(x = 2, y = 1), 
+                                              path_cost = currently_expanded[[1]]$path_cost+roads$hroads[1,1], 
+                                              manahtt_dist = manhattan_matrix[2,1],
+                                              visited_nodes = append(currently_expanded,)))
+      }
+      y = roads$vroads[1,1]
+      
+      
+      
       scores=sapply(frontier, function(item) item$path_cost+item$manhatt_dist)
       best_index=which.min(scores)
-      
-      currently_expanded <- append(currently_expanded, list(names(frontier)[best_index] = frontier[best_index]))
+      currently_expanded <- currently_expanded[-1]
+      currently_expanded <- append(currently_expanded, frontier[best_index])
       # Not sure if the above name thing works. Test this. Also left to do: 
       # define the borders of the graphs, which are conected to which etc. We need to have some kind of updating 
       # of the frontier in some way! 
+      # Do not name the nodelists! they can be nameless and called by eg. frontier[[1]]$scores.
+      # The appending needs to be done: frontier <- append(frontier, list("My_list_of_four"))
     }
     
   } 
