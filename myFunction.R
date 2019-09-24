@@ -30,27 +30,18 @@ function (roads, car, packages)
   }
   
   # Calculate the manhattan distance to the package (or the delivery spot):
-  if (offset == 0) {
+  a_star <- function(offset, toGo, roads, packages, car) {
     dimension <- dim(roads$hroads)[2]
-    manhattan_matrix <- calc_manhattan(packages[toGo,1], packages[toGo,2], dimension)
+    manhattan_matrix <- calc_manhattan(packages[toGo,1+offset], packages[toGo,2+offset], dimension)
     manhatt_dist <- manhattan_matrix[car$x,car$y]
-    # Now implement my first frontier and expanded node: 
     
     frontier <- list()
     currently_expanded <- list(list(position = list(x = car$x, y = car$y), path_cost = 0, manhatt_dist = manhatt_dist, 
                                     visited_nodes = list()))
     
-    # Gör snarare frontier till bara en list() och kör ovan frontier definition till currently_expended. 
-    
-    #defining the goal node: 
     goal_node <- c(packages[toGo,1], packages[toGo,2])
     
-    # Jag skulle kunna göra fyra stycken noder, som om de passerar ett antal if loopar och klarar diverse kriterier 
-    # ge dom värderna liksom (som en utvärdering, och om den klarar alla kanters kriterium godkänn dom genom
-    # att ge dom en nod.)
-    
     while (currently_expanded[[1]]$position$x != goal_node[1] && currently_expanded[[1]]$position$y != goal_node[2]) {
-      # lös hörngrejerna på något sätt! 
       x_pos <- currently_expanded[[1]]$position$x
       y_pos <- currently_expanded[[1]]$position$y
       current_path_cost <- currently_expanded[[1]]$path_cost
@@ -58,9 +49,6 @@ function (roads, car, packages)
       
       x_blocked <- 0
       y_blocked <- 0
-      
-      # I can instead here do that if x_pos or y_pos have an "illiegal" number, throw this node away and do nothing, otherwise 
-      # append the node to the list. 
       
       if (x_pos == 1) { 
         
@@ -146,18 +134,23 @@ function (roads, car, packages)
       currently_expanded <- append(currently_expanded, frontier[best_index])
     }
     
+    new_direction <- currently_expanded[[1]]$visited_nodes[[1]]
+    return(new_direction)
+    
   } 
   
-  if (car$x < packages[toGo, 1 + offset]) {
+  new_direction <- a_star(offset, toGo, roads, packages, car)
+  
+  if (car$x < new_direction[1]) {
     nextMove = 6
   }
-  else if (car$x > packages[toGo, 1 + offset]) {
+  else if (car$x > new_direction[1]) {
     nextMove = 4
   }
-  else if (car$y < packages[toGo, 2 + offset]) {
+  else if (car$y < new_direction[2]) {
     nextMove = 8
   }
-  else if (car$y > packages[toGo, 2 + offset]) {
+  else if (car$y > new_direction[2]) {
     nextMove = 2
   }
   else {
