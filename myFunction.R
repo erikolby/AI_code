@@ -1,4 +1,4 @@
-function (roads, car, packages) 
+myFunction <- function (roads, car, packages) 
 {
   nextMove = 0
   toGo = 0
