@@ -48,6 +48,7 @@ function (roads, car, packages)
     # Jag skulle kunna göra fyra stycken noder, som om de passerar ett antal if loopar och klarar diverse kriterier 
     # ge dom värderna liksom (som en utvärdering, och om den klarar alla kanters kriterium godkänn dom genom
     # att ge dom en nod.)
+    
     while (currently_expanded[[1]]$position$x != goal_node[1] && currently_expanded[[1]]$position$y != goal_node[2]) {
       # lös hörngrejerna på något sätt! 
       x_pos <- currently_expanded[[1]]$position$x
@@ -58,11 +59,14 @@ function (roads, car, packages)
       x_blocked <- 0
       y_blocked <- 0
       
-      if (x_pos == 1) { # Can remove this offset (it is 0)
-        #nextMove = 6
+      # I can instead here do that if x_pos or y_pos have an "illiegal" number, throw this node away and do nothing, otherwise 
+      # append the node to the list. 
+      
+      if (x_pos == 1) { 
+        
         frontier <- append(frontier, list(list(position = list(x = 2, y = y_pos), 
                                               path_cost = current_path_cost+roads$hroads[1,y_pos], 
-                                              manahtt_dist = manhattan_matrix[2, y_pos],
+                                              manhatt_dist = manhattan_matrix[2, y_pos],
                                               visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
         x_blocked <- 1
       }
@@ -70,7 +74,7 @@ function (roads, car, packages)
       if (x_pos == dimension-1) {
         frontier <- append(frontier, list(list(position = list(x = dimension-2, y = y_pos), 
                                                path_cost = current_path_cost+roads$hroads[dimension-2,y_pos], 
-                                               manahtt_dist = manhattan_matrix[dimension-2, y_pos],
+                                               manhatt_dist = manhattan_matrix[dimension-2, y_pos],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
         x_blocked <- 1
         # TRUBBEL: Mathias har typ x_pos < 1 gör detta blabla tror jag. Om man inte kommer på något smart: 
@@ -81,17 +85,58 @@ function (roads, car, packages)
       if (y_pos == 1) {
         frontier <- append(frontier, list(list(position = list(x = x_pos, y = 2), 
                                                path_cost = current_path_cost+roads$vroads[x_pos, 1], 
-                                               manahtt_dist = manhattan_matrix[2, y_pos],
+                                               manhatt_dist = manhattan_matrix[2, y_pos],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        y_blocked <- 1
       }
       
       if (y_pos == dimension-1) {
         frontier <- append(frontier, list(list(position = list(x = x_pos, y = dimension-2), 
                                                path_cost = current_path_cost+roads$vroads[x_pos, dimension-2], 
-                                               manahtt_dist = manhattan_matrix[x_pos, dimension-2],
+                                               manhatt_dist = manhattan_matrix[x_pos, dimension-2],
+                                               visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        y_blocked <- 1
+      }
+      
+      if (x_blocked == 1 && y_blocked != 1) {
+        frontier <- append(frontier, list(list(position = list(x = x_pos, y = y_pos+1), 
+                                               path_cost = current_path_cost+roads$vroads[x_pos, y_pos], 
+                                               manhatt_dist = manhattan_matrix[x_pos, y_pos+1],
+                                               visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        frontier <- append(frontier, list(list(position = list(x = x_pos, y = y_pos-1), 
+                                               path_cost = current_path_cost+roads$vroads[x_pos, y_pos-1], 
+                                               manhatt_dist = manhattan_matrix[x_pos, y_pos-1],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
       }
-      else {
+      
+      if (x_blocked != 1 && y_blocked == 1) {
+        frontier <- append(frontier, list(list(position = list(x = x_pos+1, y = y_pos), 
+                                               path_cost = current_path_cost+roads$vroads[x_pos, y_pos], 
+                                               manhatt_dist = manhattan_matrix[x_pos+1, y_pos],
+                                               visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        frontier <- append(frontier, list(list(position = list(x = x_pos-1, y = y_pos), 
+                                               path_cost = current_path_cost+roads$vroads[x_pos-1, y_pos], 
+                                               manhatt_dist = manhattan_matrix[x_pos-1, y_pos],
+                                               visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+      }
+      
+      if (x_blocked == 0 && y_blocked == 0) {
+        frontier <- append(frontier, list(list(position = list(x = x_pos+1, y = y_pos), 
+                                               path_cost = current_path_cost+roads$vroads[x_pos, y_pos], 
+                                               manhatt_dist = manhattan_matrix[x_pos+1, y_pos],
+                                               visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        frontier <- append(frontier, list(list(position = list(x = x_pos-1, y = y_pos), 
+                                               path_cost = current_path_cost+roads$vroads[x_pos-1, y_pos], 
+                                               manhatt_dist = manhattan_matrix[x_pos-1, y_pos],
+                                               visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        frontier <- append(frontier, list(list(position = list(x = x_pos, y = y_pos+1), 
+                                               path_cost = current_path_cost+roads$vroads[x_pos, y_pos], 
+                                               manhatt_dist = manhattan_matrix[x_pos, y_pos+1],
+                                               visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        frontier <- append(frontier, list(list(position = list(x = x_pos, y = y_pos-1), 
+                                               path_cost = current_path_cost+roads$vroads[x_pos, y_pos-1], 
+                                               manhatt_dist = manhattan_matrix[x_pos, y_pos-1],
+                                               visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
         
       }
       
@@ -99,23 +144,9 @@ function (roads, car, packages)
       best_index=which.min(scores)
       currently_expanded <- currently_expanded[-1]
       currently_expanded <- append(currently_expanded, frontier[best_index])
-      # Not sure if the above name thing works. Test this. Also left to do: 
-      # define the borders of the graphs, which are conected to which etc. We need to have some kind of updating 
-      # of the frontier in some way! 
-      # Do not name the nodelists! they can be nameless and called by eg. frontier[[1]]$scores.
-      # The appending needs to be done: frontier <- append(frontier, list("My_list_of_four"))
     }
     
   } 
-  else {
-    manhatt_dist <- manhattan_matrix[packages[toGo,3],packages[toGo,4]]
-  }
-  
-  
-  
-  
-
-  
   
   if (car$x < packages[toGo, 1 + offset]) {
     nextMove = 6
