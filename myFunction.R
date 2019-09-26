@@ -4,11 +4,13 @@ myFunction <- function (roads, car, packages)
   toGo = 0
   offset = 0 
   
+  # Dubble check my a*, my package thing gets stuck between values.. if the car focuses on one, the problem is solved.. 
+  
   if (car$load == 0) {
-    toGo = which(packages[, 5] == 0)[1] # Says which package is the closest. (apperently not, change this to implement the 
-    # manhattan distance).
-    # OBS: a future implementation could be to not just take the closest package. BUT the package which has the lowest 
-    # route cost. Then change this if loop and the below else. 
+    toGo = which(packages[, 5] == 0)
+    distances <- sapply(toGo, function(item) dist(rbind(c(car$x, car$y), c(packages[item,1],packages[item,2])), method = "manhattan"))
+    toGo <- which.min(distances)[1]
+    print(toGo)
   }
   else {
     toGo = car$load # Otherwise gives the possition to the variable and sets an offset so the algorithm knows if it is 
@@ -34,7 +36,7 @@ myFunction <- function (roads, car, packages)
     dimension <- dim(roads$hroads)[2]
     manhattan_matrix <- calc_manhattan(packages[toGo,1+offset], packages[toGo,2+offset], dimension)
     manhatt_dist <- manhattan_matrix[car$x,car$y]
-    print(manhatt_dist)
+    #print(manhatt_dist)
     frontier <- list()
     currently_expanded <- list(list(position = list(x = car$x, y = car$y), path_cost = 0, manhatt_dist = manhatt_dist, 
                                     visited_nodes = list()))
