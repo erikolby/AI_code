@@ -9,8 +9,9 @@ myFunction <- function (roads, car, packages)
   if (car$load == 0) {
     toGo = which(packages[, 5] == 0)
     distances <- sapply(toGo, function(item) dist(rbind(c(car$x, car$y), c(packages[item,1],packages[item,2])), method = "manhattan"))
-    toGo <- which.min(distances)[1]
-    print(toGo)
+    next_package <- which.min(distances)[1]
+    toGo <- toGo[next_package]
+    #print(toGo)
   }
   else {
     toGo = car$load # Otherwise gives the possition to the variable and sets an offset so the algorithm knows if it is 
@@ -31,27 +32,37 @@ myFunction <- function (roads, car, packages)
     return(final_matrix)
   }
   
+  # Write a function that checks if the node has already been passet by this node. If it has, do not add it to the frontier. 
+  check_frontier <- function(x, y, current_visited_list) {
+    
+  }
+  
+  
   # Calculate the manhattan distance to the package (or the delivery spot):
   a_star <- function(offset, toGo, roads, packages, car) {
     dimension <- dim(roads$hroads)[2]
     manhattan_matrix <- calc_manhattan(packages[toGo,1+offset], packages[toGo,2+offset], dimension)
     manhatt_dist <- manhattan_matrix[car$x,car$y]
     #print(manhatt_dist)
+    goal_node <- c(packages[toGo,1+offset], packages[toGo,2+offset])
     frontier <- list()
     currently_expanded <- list(list(position = list(x = car$x, y = car$y), path_cost = 0, manhatt_dist = manhatt_dist, 
                                     visited_nodes = list()))
     test <- 0
-    goal_node <- c(packages[toGo,1+offset], packages[toGo,2+offset])
-    if (car$x == goal_node[1] && car$y == goal_node[2]) {
-      return(c(goal_node[1], goal_node[2]))
-      print("At the node!")
-    }
+    #goal_node <- c(packages[toGo,1+offset], packages[toGo,2+offset])
+    
     while (currently_expanded[[1]]$position$x != goal_node[1] || currently_expanded[[1]]$position$y != goal_node[2]) {
+      if (car$x == goal_node[1] && car$y == goal_node[2]) {
+        return(c(goal_node[1], goal_node[2]))
+        #print("At the node!")
+      }
       x_pos <- currently_expanded[[1]]$position$x
       y_pos <- currently_expanded[[1]]$position$y
+      cat(sprintf("My x-pos: %d\n", x_pos))
+      cat(sprintf("My y-pos: %d\n", y_pos))
       current_path_cost <- currently_expanded[[1]]$path_cost
       current_visited_list <- currently_expanded[[1]]$visited_nodes
-      test <- test+1
+      #test <- test+1
       #print(test)
       #print(goal_node[1])
       #print(goal_node[2])
@@ -59,9 +70,9 @@ myFunction <- function (roads, car, packages)
       #print(currently_expanded[[1]]$position$y)
       x_blocked <- 0
       y_blocked <- 0
-      if (test > dimension*80) {
-        return(c(goal_node[1], goal_node[2]))
-      }
+      #if (test > dimension*100) {
+      #  return(c(goal_node[1], goal_node[2]))
+      #}
       
       if (x_pos == 1) { 
         
@@ -86,7 +97,7 @@ myFunction <- function (roads, car, packages)
       if (y_pos == 1) {
         frontier <- append(frontier, list(list(position = list(x = x_pos, y = 2), 
                                                path_cost = current_path_cost+roads$vroads[x_pos, 1], 
-                                               manhatt_dist = manhattan_matrix[2, y_pos],
+                                               manhatt_dist = manhattan_matrix[x_pos, 2],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
         y_blocked <- 1
       }
@@ -147,9 +158,9 @@ myFunction <- function (roads, car, packages)
       currently_expanded <- append(currently_expanded, frontier[best_index])
       frontier <- frontier[-best_index]
     }
-    if (length(currently_expanded[[1]]$visited_nodes) <= 1) {
+    if (length(currently_expanded[[1]]$visited_nodes) == 1) {
       currently_expanded[[1]]$visited_nodes <- append(currently_expanded[[1]]$visited_nodes, list(c(goal_node[1], goal_node[2])))
-      print("next to the node!")
+      #print("next to the node!")
       }
     #if (currently_expanded[[1]]$position$x == goal_node[1] && currently_expanded[[1]]$position$y == goal_node[2]) {
     #  print(2)
