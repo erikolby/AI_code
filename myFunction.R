@@ -34,7 +34,21 @@ myFunction <- function (roads, car, packages)
   
   # Write a function that checks if the node has already been passet by this node. If it has, do not add it to the frontier. 
   check_frontier <- function(x, y, current_visited_list) {
-    
+    if (length(current_visited_list) != 0) {
+      visited_x <- sapply(current_visited_list, '[[', 1)
+      visited_y <- sapply(current_visited_list, '[[', 2)
+      visited_vector <- mapply(c, visited_x, visited_y)
+      vector_of_logic <- sapply(1:dim(visited_vector)[2], function(item) identical(visited_vector[,item], c(x,y)))
+      if (all(vector_of_logic == FALSE)) {
+        return(TRUE)
+      }
+      else {
+        return(FALSE)
+      }
+    }
+    else {
+      return(TRUE)
+    }
   }
   
   
@@ -50,20 +64,23 @@ myFunction <- function (roads, car, packages)
                                     visited_nodes = list()))
     test <- 0
     #goal_node <- c(packages[toGo,1+offset], packages[toGo,2+offset])
+    if (car$x == goal_node[1] && car$y == goal_node[2]) {
+      return(c(goal_node[1], goal_node[2]))
+      #print("At the node!")
+    }
     
     while (currently_expanded[[1]]$position$x != goal_node[1] || currently_expanded[[1]]$position$y != goal_node[2]) {
-      if (car$x == goal_node[1] && car$y == goal_node[2]) {
-        return(c(goal_node[1], goal_node[2]))
-        #print("At the node!")
-      }
+      
       x_pos <- currently_expanded[[1]]$position$x
       y_pos <- currently_expanded[[1]]$position$y
-      cat(sprintf("My x-pos: %d\n", x_pos))
-      cat(sprintf("My y-pos: %d\n", y_pos))
+      #cat(sprintf("My x-pos: %d\n", x_pos))
+      #cat(sprintf("My y-pos: %d\n", y_pos))
       current_path_cost <- currently_expanded[[1]]$path_cost
+      #print(current_path_cost)
       current_visited_list <- currently_expanded[[1]]$visited_nodes
-      #test <- test+1
-      #print(test)
+      #print(length(current_visited_list))
+      test <- test+1
+      print(test)
       #print(goal_node[1])
       #print(goal_node[2])
       #print(currently_expanded[[1]]$position$x)
@@ -75,80 +92,109 @@ myFunction <- function (roads, car, packages)
       #}
       
       if (x_pos == 1) { 
-        
+        if (check_frontier(2, y_pos, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = 2, y = y_pos), 
                                               path_cost = current_path_cost+roads$hroads[1,y_pos], 
                                               manhatt_dist = manhattan_matrix[2, y_pos],
                                               visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        
+        }
         x_blocked <- 1
       }
       
       if (x_pos == dimension) {
+        if (check_frontier(dimension-1, y_pos, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = dimension-1, y = y_pos), 
                                                path_cost = current_path_cost+roads$hroads[dimension-2,y_pos], 
                                                manhatt_dist = manhattan_matrix[dimension-1, y_pos],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        
+        }
         x_blocked <- 1
-        # TRUBBEL: Mathias har typ x_pos < 1 gör detta blabla tror jag. Om man inte kommer på något smart: 
-        # forsätt på x_block och y_block, om den bara är x-block: ge y-led frihet, om den bara är y-blockat ge
-        # x-led frihet, om både och, gör INGENTING, för dessa loopar har redan tagit hand om det! 
       }
       
       if (y_pos == 1) {
+        if (check_frontier(x_pos, 2, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = x_pos, y = 2), 
                                                path_cost = current_path_cost+roads$vroads[x_pos, 1], 
                                                manhatt_dist = manhattan_matrix[x_pos, 2],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        
+        }
         y_blocked <- 1
       }
       
       if (y_pos == dimension) {
+        if (check_frontier(x_pos, dimension-1, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = x_pos, y = dimension-1), 
                                                path_cost = current_path_cost+roads$vroads[x_pos, dimension-2], 
                                                manhatt_dist = manhattan_matrix[x_pos, dimension-1],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        
+        }
         y_blocked <- 1
       }
       
       if (x_blocked == 1 && y_blocked != 1) {
+        if (check_frontier(x_pos, y_pos+1, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = x_pos, y = y_pos+1), 
                                                path_cost = current_path_cost+roads$vroads[x_pos, y_pos], 
                                                manhatt_dist = manhattan_matrix[x_pos, y_pos+1],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        }
+        
+        if (check_frontier(x_pos, y_pos-1, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = x_pos, y = y_pos-1), 
                                                path_cost = current_path_cost+roads$vroads[x_pos, y_pos-1], 
                                                manhatt_dist = manhattan_matrix[x_pos, y_pos-1],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        }
       }
       
       if (x_blocked != 1 && y_blocked == 1) {
+        if (check_frontier(x_pos+1, y_pos, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = x_pos+1, y = y_pos), 
                                                path_cost = current_path_cost+roads$hroads[x_pos, y_pos], 
                                                manhatt_dist = manhattan_matrix[x_pos+1, y_pos],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        }
+        
+        if (check_frontier(x_pos-1, y_pos, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = x_pos-1, y = y_pos), 
                                                path_cost = current_path_cost+roads$hroads[x_pos-1, y_pos], 
                                                manhatt_dist = manhattan_matrix[x_pos-1, y_pos],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        }
       }
       
       if (x_blocked == 0 && y_blocked == 0) {
+        if (check_frontier(x_pos+1, y_pos, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = x_pos+1, y = y_pos), 
                                                path_cost = current_path_cost+roads$hroads[x_pos, y_pos], 
                                                manhatt_dist = manhattan_matrix[x_pos+1, y_pos],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        }
+        
+        if (check_frontier(x_pos-1, y_pos, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = x_pos-1, y = y_pos), 
                                                path_cost = current_path_cost+roads$hroads[x_pos-1, y_pos], 
                                                manhatt_dist = manhattan_matrix[x_pos-1, y_pos],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        }
+        
+        if (check_frontier(x_pos, y_pos+1, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = x_pos, y = y_pos+1), 
                                                path_cost = current_path_cost+roads$vroads[x_pos, y_pos], 
                                                manhatt_dist = manhattan_matrix[x_pos, y_pos+1],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        }
+        
+        if (check_frontier(x_pos, y_pos-1, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = x_pos, y = y_pos-1), 
                                                path_cost = current_path_cost+roads$vroads[x_pos, y_pos-1], 
                                                manhatt_dist = manhattan_matrix[x_pos, y_pos-1],
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
+        }
         
       }
       
