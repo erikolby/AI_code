@@ -32,6 +32,11 @@ myFunction <- function (roads, car, packages)
     return(final_matrix)
   }
   
+  calc_manhattan_new <- function(car_x, car_y, goal_node) {
+    my_pos <- c(car_x, car_y)
+    return(dist(rbind(my_pos, goal_node), method = "manhattan")*2)
+  }
+  
   # Write a function that checks if the node has already been passet by this node. If it has, do not add it to the frontier. 
   check_frontier <- function(x, y, current_visited_list) {
     if (length(current_visited_list) != 0) {
@@ -55,14 +60,14 @@ myFunction <- function (roads, car, packages)
   # Calculate the manhattan distance to the package (or the delivery spot):
   a_star <- function(offset, toGo, roads, packages, car) {
     dimension <- dim(roads$hroads)[2]
-    manhattan_matrix <- calc_manhattan(packages[toGo,1+offset], packages[toGo,2+offset], dimension)
-    manhatt_dist <- manhattan_matrix[car$x,car$y]
+    #manhattan_matrix <- calc_manhattan(packages[toGo,1+offset], packages[toGo,2+offset], dimension)*2
+    #manhatt_dist <- manhattan_matrix[car$x,car$y]
     #print(manhatt_dist)
     goal_node <- c(packages[toGo,1+offset], packages[toGo,2+offset])
     frontier <- list()
     currently_expanded <- list(list(position = list(x = car$x, y = car$y), path_cost = 0, manhatt_dist = manhatt_dist, 
                                     visited_nodes = list()))
-    test <- 0
+    #test <- 0
     #goal_node <- c(packages[toGo,1+offset], packages[toGo,2+offset])
     if (car$x == goal_node[1] && car$y == goal_node[2]) {
       return(c(goal_node[1], goal_node[2]))
@@ -79,8 +84,11 @@ myFunction <- function (roads, car, packages)
       #print(current_path_cost)
       current_visited_list <- currently_expanded[[1]]$visited_nodes
       #print(length(current_visited_list))
-      test <- test+1
-      print(test)
+      #test <- test+1
+      #if (test > 2000) {
+      #  stop("ERROR")
+      #}
+      #print(test)
       #print(goal_node[1])
       #print(goal_node[2])
       #print(currently_expanded[[1]]$position$x)
@@ -90,6 +98,12 @@ myFunction <- function (roads, car, packages)
       #if (test > dimension*100) {
       #  return(c(goal_node[1], goal_node[2]))
       #}
+      
+      # Tanke: kan det vara så att jag vill lägga till manhattan dist till path cost iaf? Då kanske den fungerar bättre? 
+      
+      
+      # Om alla har samma vägkostnad ta direkt närmaste vägen utan a*?
+      
       
       if (x_pos == 1) { 
         if (check_frontier(2, y_pos, current_visited_list)) {
@@ -198,6 +212,8 @@ myFunction <- function (roads, car, packages)
         
       }
       
+      # Tanke: om det finns flera best_index, ta den som har lägst manhattan dist?!
+      
       scores=sapply(frontier, function(item) item$path_cost+item$manhatt_dist)
       best_index=which.min(scores)
       currently_expanded <- currently_expanded[-1]
@@ -216,8 +232,6 @@ myFunction <- function (roads, car, packages)
     
     
     new_direction <- currently_expanded[[1]]$visited_nodes[[2]]
-    # Den av någon anledning lägger bara in ett objekt i visited_nodes, vilket gör att det blir out of bounds? a* kommer
-    # fram till att den borde stanna på platsen??
     return(new_direction)
     
   } 
@@ -240,6 +254,8 @@ myFunction <- function (roads, car, packages)
     nextMove = 5
   }
   
+  # Run statistics: 
+  # 1: 50, 57 sec
   
   car$nextMove = nextMove
   car$mem = list()
