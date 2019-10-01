@@ -32,10 +32,16 @@ myFunction <- function (roads, car, packages)
     return(final_matrix)
   }
   
-  calc_manhattan_new <- function(car_x, car_y, goal_node) {
-    my_pos <- c(car_x, car_y)
-    return(dist(rbind(my_pos, goal_node), method = "manhattan")*2)
-  }
+  # Do an increasing heuristic ie. if counter > 30 manhattandist!*2 else manhattandist*2
+  #m calc_man <- function(car_x, car_y, goal_node) {
+   # my_pos <- c(car_x, car_y)
+    #if (counter > 30) {
+    #  return(dist(rbind(my_pos, goal_node), method = "manhattan")*2)
+    #}
+    #else {
+     # return(dist(rbind(my_pos, goal_node), method = "manhattan"))
+    #}
+  #}
   
   # Write a function that checks if the node has already been passet by this node. If it has, do not add it to the frontier. 
   check_frontier <- function(x, y, current_visited_list) {
@@ -60,14 +66,14 @@ myFunction <- function (roads, car, packages)
   # Calculate the manhattan distance to the package (or the delivery spot):
   a_star <- function(offset, toGo, roads, packages, car) {
     dimension <- dim(roads$hroads)[2]
-    #manhattan_matrix <- calc_manhattan(packages[toGo,1+offset], packages[toGo,2+offset], dimension)*2
-    #manhatt_dist <- manhattan_matrix[car$x,car$y]
-    #print(manhatt_dist)
+    manhattan_matrix <- calc_manhattan(packages[toGo,1+offset], packages[toGo,2+offset], dimension)*2
     goal_node <- c(packages[toGo,1+offset], packages[toGo,2+offset])
+    counter <- 0
+    manhatt_dist <- manhattan_matrix[car$x, car$y]
     frontier <- list()
     currently_expanded <- list(list(position = list(x = car$x, y = car$y), path_cost = 0, manhatt_dist = manhatt_dist, 
                                     visited_nodes = list()))
-    #test <- 0
+    
     #goal_node <- c(packages[toGo,1+offset], packages[toGo,2+offset])
     if (car$x == goal_node[1] && car$y == goal_node[2]) {
       return(c(goal_node[1], goal_node[2]))
@@ -84,11 +90,11 @@ myFunction <- function (roads, car, packages)
       #print(current_path_cost)
       current_visited_list <- currently_expanded[[1]]$visited_nodes
       #print(length(current_visited_list))
-      #test <- test+1
+      counter <- counter+1
       #if (test > 2000) {
       #  stop("ERROR")
       #}
-      #print(test)
+      print(counter)
       #print(goal_node[1])
       #print(goal_node[2])
       #print(currently_expanded[[1]]$position$x)
@@ -210,6 +216,7 @@ myFunction <- function (roads, car, packages)
                                                visited_nodes = append(current_visited_list, list(c(x_pos, y_pos))))))
         }
         
+        
       }
       
       # Tanke: om det finns flera best_index, ta den som har lägst manhattan dist?!
@@ -222,22 +229,13 @@ myFunction <- function (roads, car, packages)
     }
     if (length(currently_expanded[[1]]$visited_nodes) == 1) {
       currently_expanded[[1]]$visited_nodes <- append(currently_expanded[[1]]$visited_nodes, list(c(goal_node[1], goal_node[2])))
-      #print("next to the node!")
       }
-    #if (currently_expanded[[1]]$position$x == goal_node[1] && currently_expanded[[1]]$position$y == goal_node[2]) {
-    #  print(2)
-    #  return(c(goal_node[1],goal_node[2]))
-    #}
-    #print(sapply(currently_expanded, function(item) item$visited_nodes))
-    
-    
     new_direction <- currently_expanded[[1]]$visited_nodes[[2]]
     return(new_direction)
     
   } 
   
   new_direction <- a_star(offset, toGo, roads, packages, car)
-  #print(new_direction)
   if (car$x < new_direction[1]) {
     nextMove = 6
   }
@@ -255,7 +253,8 @@ myFunction <- function (roads, car, packages)
   }
   
   # Run statistics: 
-  # 1: 50, 57 sec
+  # 1: 179.64, 50, 57 sec
+  # 2 (setting calc_manhattan inside the if statements): 179.64, 50, 65 sec   
   
   car$nextMove = nextMove
   car$mem = list()
