@@ -4,18 +4,14 @@ myFunction <- function (roads, car, packages)
   toGo = 0
   offset = 0 
   
-  # Dubble check my a*, my package thing gets stuck between values.. if the car focuses on one, the problem is solved.. 
-  
   if (car$load == 0) {
     toGo = which(packages[, 5] == 0)
     distances <- sapply(toGo, function(item) dist(rbind(c(car$x, car$y), c(packages[item,1],packages[item,2])), method = "manhattan"))
     next_package <- which.min(distances)[1]
     toGo <- toGo[next_package]
-    #print(toGo)
   }
   else {
-    toGo = car$load # Otherwise gives the possition to the variable and sets an offset so the algorithm knows if it is 
-    # a drop off or a pick up. 
+    toGo = car$load
     offset = 2  
   }
   
@@ -31,17 +27,6 @@ myFunction <- function (roads, car, packages)
     }
     return(final_matrix)
   }
-  
-  # Do an increasing heuristic ie. if counter > 30 manhattandist!*2 else manhattandist*2
-  #m calc_man <- function(car_x, car_y, goal_node) {
-   # my_pos <- c(car_x, car_y)
-    #if (counter > 30) {
-    #  return(dist(rbind(my_pos, goal_node), method = "manhattan")*2)
-    #}
-    #else {
-     # return(dist(rbind(my_pos, goal_node), method = "manhattan"))
-    #}
-  #}
   
   # Write a function that checks if the node has already been passet by this node. If it has, do not add it to the frontier. 
   check_frontier <- function(x, y, current_visited_list) {
@@ -74,43 +59,19 @@ myFunction <- function (roads, car, packages)
     currently_expanded <- list(list(position = list(x = car$x, y = car$y), path_cost = 0, manhatt_dist = manhatt_dist, 
                                     visited_nodes = list()))
     
-    #goal_node <- c(packages[toGo,1+offset], packages[toGo,2+offset])
     if (car$x == goal_node[1] && car$y == goal_node[2]) {
       return(c(goal_node[1], goal_node[2]))
-      #print("At the node!")
     }
     
     while (currently_expanded[[1]]$position$x != goal_node[1] || currently_expanded[[1]]$position$y != goal_node[2]) {
       
       x_pos <- currently_expanded[[1]]$position$x
       y_pos <- currently_expanded[[1]]$position$y
-      #cat(sprintf("My x-pos: %d\n", x_pos))
-      #cat(sprintf("My y-pos: %d\n", y_pos))
       current_path_cost <- currently_expanded[[1]]$path_cost
-      #print(current_path_cost)
       current_visited_list <- currently_expanded[[1]]$visited_nodes
-      #print(length(current_visited_list))
-      counter <- counter+1
-      #if (test > 2000) {
-      #  stop("ERROR")
-      #}
-      print(counter)
-      #print(goal_node[1])
-      #print(goal_node[2])
-      #print(currently_expanded[[1]]$position$x)
-      #print(currently_expanded[[1]]$position$y)
       x_blocked <- 0
       y_blocked <- 0
-      #if (test > dimension*100) {
-      #  return(c(goal_node[1], goal_node[2]))
-      #}
-      
-      # Tanke: kan det vara så att jag vill lägga till manhattan dist till path cost iaf? Då kanske den fungerar bättre? 
-      
-      
-      # Om alla har samma vägkostnad ta direkt närmaste vägen utan a*?
-      
-      
+
       if (x_pos == 1) { 
         if (check_frontier(2, y_pos, current_visited_list)) {
         frontier <- append(frontier, list(list(position = list(x = 2, y = y_pos), 
@@ -218,8 +179,6 @@ myFunction <- function (roads, car, packages)
         
         
       }
-      
-      # Tanke: om det finns flera best_index, ta den som har lägst manhattan dist?!
       
       scores=sapply(frontier, function(item) item$path_cost+item$manhatt_dist)
       best_index=which.min(scores)
