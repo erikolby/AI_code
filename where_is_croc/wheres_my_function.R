@@ -6,7 +6,7 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
     visited <- list()
     current_path <- list()
     frontier_and_visited <- list()
-    return_value <- 0
+    return_value <- my_node
     
     while (goal_node != my_node) {
       first_column_index <- which(edges[,1] == my_node)
@@ -58,6 +58,21 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
       return(return_value)
 
   }
-  a_value <- move_ranger(1, edges, 8)
-  print(a_value)
+  
+  calc_move_matrix <- function(edges) {
+    move_matrix <- matrix(rep(1,40*40),ncol=40)
+    for (i in 1:40) {
+      for (j in 1:40) {
+        move_matrix[i,j] <- move_ranger(i, edges, j)
+      }
+    }
+    return(move_matrix)
+  }
+  
+  # When it is the first turn, calculate the move_matrix and add it to the mem field. 
+  if (moveInfo$mem$status == 0) {
+    moveInfo$mem$move_matrix <- calc_move_matrix(edges)
+  }
+  
+  print("jeha")
   }
