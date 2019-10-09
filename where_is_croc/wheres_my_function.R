@@ -121,11 +121,11 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
   # Create fresh probability vector if the status field is indicating a new game. (The first or any other).
   if (moveInfo$mem$status == 0 || moveInfo$mem$status == 1) {
     for (i in 1:40) {
-      if (i %in% positions) {
+      if (i == positions[1] || i == positions[2]) {
         moveInfo$mem$probability_vector[i] <- 0
       }
       else {
-        moveInfo$mem$probability_vector[i] <- 1/37
+        moveInfo$mem$probability_vector[i] <- 1/38
       }
     }
     moveInfo$mem$status = 2
