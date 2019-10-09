@@ -3,37 +3,43 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
   calc_transition_matrix <- function(edges) { 
     transition_matrix <- matrix(rep(0,40*40),ncol=40)
     for (i in 1:40) {
+      # Picking out where the nodes edges and calculating the length of the index vectors. 
       first_column_index <- which(edges[,1] == i)
       second_column_index <- which(edges[,2] == i)
       length_first_column <- length(first_column_index)
       length_second_column <- length(second_column_index)
-      #for (j in 1:40) {
       neighbour <- 0
+      # Only looking at the first column and length must be larger then 0. 
       if (length_first_column > 0) {
+        # for all the found edges. 
         for (k in 1:length_first_column) {
+          # The node connecting to our investigated is taken. 
           neighbour <- edges[first_column_index[k],2]
+          # All of the edges that this node has is analyzed. 
           neighbour_index_one <- which(edges[,1] == neighbour)
           neighbour_index_two <- which(edges[,2] == neighbour)
+          # The transition matrix is uppdated on the column of the originally investigated node
+          # and the transition probability is put on the corresponding spot.  
           transition_matrix[neighbour, i] <- 1/(length(neighbour_index_one)+length(neighbour_index_two))  
-        #if (edges[j,1] == i) {
-        #  first_column_neighbours = which(edges[,1] == edges[j,2])
-        #  second_column_neighbours = which(edges[,2] == edges[j,2])
-        #  transition_matrix[j,i]          
-        }  
-        # Find the transition probability from neighbour: 
-      #  if (length_first_column > 0) {
-       #   for (k in 1:length_first_column) {
-        #    neighbours[k] <- edges[k,2]
-            #output_transition_vector[j,i] <- (length(first_column_index)+length(second_column_index))/40
-      #  }
-       # }
-        #if (length_second_column > 0) {
-         # for (k in second_column_index) {
-          #}
-          }
+        }
       }
+      # Only looking at the first column and length must be larger then 0. 
+      if (length_second_column > 0) {
+        # for all the found edges. 
+        for (k in 1:length_second_column) {
+          # The node connecting to our investigated is taken. 
+          neighbour <- edges[second_column_index[k],2]
+          # All of the edges that this node has is analyzed. 
+          neighbour_index_one <- which(edges[,1] == neighbour)
+          neighbour_index_two <- which(edges[,2] == neighbour)
+          # The transition matrix is uppdated on the column of the originally investigated node
+          # and the transition probability is put on the corresponding spot.  
+          transition_matrix[neighbour, i] <- 1/(length(neighbour_index_one)+length(neighbour_index_two))
+        }
+      }
+          }
+    return(transition_matrix)
     }
-  
     
   closest_path <- function(my_node, edges, goal_node) {
     frontier <- list()
@@ -106,9 +112,10 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
   
   # When it is the first turn, calculate the move_matrix and add it to the mem field. 
   if (!(is.matrix(moveInfo$mem$move_matrix))) {
-    print("Calculating matrix...")
+    print("----- Initializing -----")
     moveInfo$mem$move_matrix <- calc_move_matrix(edges)
     moveInfo$mem$probability_vector <- numeric(40)
+    moveInfo$mem$trans_matrix <- calc_transition_matrix(edges) # Calculate the transition state matrix 
   }
   
   # Create fresh probability vector if the status field is indicating a new game. (The first or any other).
@@ -124,6 +131,19 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
     moveInfo$mem$status = 2
   }
    
+  if (moveInfo$mem$status == 2) {
+    current_probs <- moveInfo$mem$probability_vector
+    trans_matrix <- moveInfo$mem$trans_matrix 
+    # Uppdating probability vector... 
+    # First standard markow chain: 
+    new_probs <- 0
+    for (i in 1:40) {
+      new_probs[i] <- current_probs%*%trans_matrix[,i]*mean(c(dnorm(readings[1], probs$salinity[i,1], probs$salinity[i,2])
+                                                              ,dnorm(readings[2], probs$phosphate[i,1], probs$phosphate[i,2])
+                                                              ,dnorm(readings[3], probs$nitrogen[i,1], probs$nitrogen[i,2])))
+    }
+    print(which.max(new_probs))
+  }
   
   
   random_walker <- function(moveInfo, positions) {
