@@ -135,17 +135,30 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
     current_probs <- moveInfo$mem$probability_vector
     trans_matrix <- moveInfo$mem$trans_matrix 
     # Uppdating probability vector... 
-    # First standard markow chain: 
+    # Standard markow chain plus emissionprobs: 
     new_probs <- 0
     for (i in 1:40) {
       new_probs[i] <- current_probs%*%trans_matrix[,i]*mean(c(dnorm(readings[1], probs$salinity[i,1], probs$salinity[i,2])
                                                               ,dnorm(readings[2], probs$phosphate[i,1], probs$phosphate[i,2])
                                                               ,dnorm(readings[3], probs$nitrogen[i,1], probs$nitrogen[i,2])))
     }
-    print(which.max(new_probs))
+    for (i in positions) {
+      if (is.na(i)) {
+        # Here I should add some kind of cooldown factor for the dead backpacker.. If it recently happened, use it!
+      }
+      else if (i > 0) {
+        new_probs[i] = 0
+      } 
+      else {
+        new_probs[i] = 1
+      }
+      print(i)
+    }
+    # Some error happens when update the vector here.. the longer it goes the more confused my algorithm becomes.
+    moveInfo$mem$probability_vector <- new_probs
+    winning_node <- which.max(new_probs)
   }
-  
-  
+
   random_walker <- function(moveInfo, positions) {
   the_goal <- sample(40,1)
   move_1 <- moveInfo$mem$move_matrix[positions[3], the_goal]
@@ -154,8 +167,8 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
   return(moveInfo)
   }
   
-  # If we want a random walker... 
-  return(random_walker(moveInfo, positions))
+  moveInfo$moves <- c(moveInfo$mem$move_matrix[positions[3], winning_node], 0)
+  return(moveInfo)
   
   
   
