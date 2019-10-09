@@ -28,7 +28,7 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
         # for all the found edges. 
         for (k in 1:length_second_column) {
           # The node connecting to our investigated is taken. 
-          neighbour <- edges[second_column_index[k],2]
+          neighbour <- edges[second_column_index[k],1]
           # All of the edges that this node has is analyzed. 
           neighbour_index_one <- which(edges[,1] == neighbour)
           neighbour_index_two <- which(edges[,2] == neighbour)
@@ -112,7 +112,7 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
   
   # When it is the first turn, calculate the move_matrix and add it to the mem field. 
   if (!(is.matrix(moveInfo$mem$move_matrix))) {
-    print("----- Initializing -----")
+    #print("----- Initializing -----")
     moveInfo$mem$move_matrix <- calc_move_matrix(edges)
     moveInfo$mem$probability_vector <- numeric(40)
     moveInfo$mem$trans_matrix <- calc_transition_matrix(edges) # Calculate the transition state matrix 
@@ -138,36 +138,91 @@ wheres_my_function <- function(moveInfo, readings, positions, edges, probs) {
     # Standard markow chain plus emissionprobs: 
     new_probs <- 0
     for (i in 1:40) {
-      new_probs[i] <- current_probs%*%trans_matrix[,i]*mean(c(dnorm(readings[1], probs$salinity[i,1], probs$salinity[i,2])
-                                                              ,dnorm(readings[2], probs$phosphate[i,1], probs$phosphate[i,2])
-                                                              ,dnorm(readings[3], probs$nitrogen[i,1], probs$nitrogen[i,2])))
+      new_probs[i] <- current_probs%*%trans_matrix[,i]*(dnorm(readings[1], probs$salinity[i,1], probs$salinity[i,2])*
+                                                          dnorm(readings[2], probs$phosphate[i,1], probs$phosphate[i,2])*
+                                                          dnorm(readings[3], probs$nitrogen[i,1], probs$nitrogen[i,2]))
     }
-    for (i in positions) {
-      if (is.na(i)) {
+    
+    
+    for (i in 1:2) {
+      if (is.na(positions[i])) {
         # Here I should add some kind of cooldown factor for the dead backpacker.. If it recently happened, use it!
       }
-      else if (i > 0) {
-        new_probs[i] = 0
+      else if (positions[i] > 0) {
+        new_probs[positions[i]] = 0
       } 
       else {
-        new_probs[i] = 1
+        new_probs[positions[i]] = 1
       }
-      print(i)
     }
-    # Some error happens when update the vector here.. the longer it goes the more confused my algorithm becomes.
-    moveInfo$mem$probability_vector <- new_probs
-    winning_node <- which.max(new_probs)
-  }
-
-  random_walker <- function(moveInfo, positions) {
-  the_goal <- sample(40,1)
-  move_1 <- moveInfo$mem$move_matrix[positions[3], the_goal]
-  move_2 <- sample(c(moveInfo$mem$move_matrix[move_1, the_goal],0),1)
-  moveInfo$moves <- c(move_1, move_2)
-  return(moveInfo)
+    
+    # Normalizing the calculated vector. 
+    new_pobs_sum <- sum(new_probs)
+    for (i in 1:40) {
+      new_probs[i] <- new_probs[i]/new_pobs_sum
+    }
+    original_winning_node <- which.max(new_probs)
+    
+    search_own_position <- 0 # If the current node is the one winning, search! 
+    if (original_winning_node == positions[3]) {
+      search_own_position = 1
+    }
+    
+    # If conesting node is close, check it out. 
+    contesting_nodes <- which(new_probs > new_probs[original_winning_node]/6) # is the current position always in contesting nodes? otherwise, if it is, could be good to search where you are. 
+    close_by_first <- 0
+    close_by_second <- 0
+      first_column_index <- which(edges[,1] == positions[3])
+      second_column_index <- which(edges[,2] == positions[3])
+      length_first_column_index <- length(first_column_index)
+      length_second_column_index <- length(second_column_index)
+      
+      if (length_first_column_index > 0) {
+        for (i in 1:length_first_column_index) {
+          close_by_first[i] <- edges[first_column_index[i],2]
+        }
+      }
+      if (length_second_column_index > 0) {
+        for (i in 1:length_second_column_index) {
+          close_by_second[i] <- edges[second_column_index[i],1]
+        }
+      }
+      winning_parameter <- 0
+      winning_node <- 0
+      for (i in 1:length(contesting_nodes)) {
+      if (contesting_nodes[i] %in% close_by_first) {
+        winning_node = contesting_nodes[i]
+        winning_parameter <- 1
+      }
+      if (contesting_nodes[i] %in% close_by_second) {
+        winning_node = contesting_nodes[i]
+        winning_parameter <- 1
+      }
+      }
+      # handling the first move: 
+      move_1 <- moveInfo$mem$move_matrix[positions[3], winning_node]
+      # How to handle the second move: 
+      if (winning_parameter == 0) {
+        move_1 <- moveInfo$mem$move_matrix[positions[3], original_winning_node]
+        move_2 <- moveInfo$mem$move_matrix[move_1, original_winning_node]
+      }
+      else {
+        move_2 <- 0
+      }
+      if (search_own_position == 1) {
+        move_1 <- 0
+      }
   }
   
-  moveInfo$moves <- c(moveInfo$mem$move_matrix[positions[3], winning_node], 0)
+  if (move_1 == 0) {
+   new_probs[positions[3]] = 0
+  }
+  if (move_2 == 0) {
+    new_probs[move_1] = 0
+  }
+  
+  moveInfo$mem$probability_vector <- new_probs
+  moveInfo$moves <- c(move_1, move_2)
   return(moveInfo)
   
   
