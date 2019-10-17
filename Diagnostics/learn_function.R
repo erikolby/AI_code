@@ -117,11 +117,18 @@ learn_function <- function(hist) {
   Xray_0_given_Pn_1_TB_1_LC_1 <- calculating_three_dependencies(hist, 1, 1, 1, 0, 1, 4, 6, 8)
   Xray_1_given_Pn_1_TB_1_LC_1 <- calculating_three_dependencies(hist, 1, 1, 1, 1, 1, 4, 6, 8)
   
-  
+  Xray_output <- data.fram("given_Pn_0_TB_0_LC_0" = c(Xray_0_given_Pn_0_TB_0_LC_0, Xray_1_given_Pn_0_TB_0_LC_0),
+                           "given_Pn_0_TB_0_LC_1" = c(Xray_0_given_Pn_0_TB_0_LC_1, Xray_1_given_Pn_0_TB_0_LC_1),
+                           "given_Pn_0_TB_1_LC_0" = c(Xray_0_given_Pn_0_TB_1_LC_0, Xray_1_given_Pn_0_TB_1_LC_0),
+                           "given_Pn_1_TB_0_LC_0" = c(Xray_0_given_Pn_1_TB_0_LC_0, Xray_1_given_Pn_1_TB_0_LC_0),
+                           "given_Pn_0_TB_1_LC_1" = c(Xray_0_given_Pn_0_TB_1_LC_1, Xray_1_given_Pn_0_TB_1_LC_1),
+                           "given_Pn_1_TB_1_LC_0" = c(Xray_0_given_Pn_1_TB_1_LC_0, Xray_1_given_Pn_1_TB_1_LC_0),
+                           "given_Pn_1_TB_0_LC_1" = c(Xray_0_given_Pn_1_TB_0_LC_1, Xray_1_given_Pn_1_TB_0_LC_1),
+                           "given_Pn_1_TB_1_LC_1" = c(Xray_0_given_Pn_1_TB_1_LC_1, Xray_1_given_Pn_1_TB_1_LC_1))
   
   
   return(list("Pn" = Pn_output, "VTB" = VTB_output, "smokes" = smokes_output, "temperature" = temp_output,
-              "TB" = TB_output, "BR" = BR_output, "LC" = LC_output, "Dy" = Dy_output))
+              "TB" = TB_output, "BR" = BR_output, "LC" = LC_output, "Dy" = Dy_output, "Xray" = Xray_output))
   
   
 }
