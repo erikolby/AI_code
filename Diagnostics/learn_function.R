@@ -4,6 +4,8 @@ learn_function <- function(hist) {
   # distribution. The normal distributed attribute should be fitted to a normal distribution and the values for the 
   # mean and the standard deviation in these cases should be returned. 
   
+  # NOTE: which function with two or more statements can be used, just put one & between them. 
+  
   # Pneumonia: 
   
   Pn_0 <- length(which(hist[,1] == 0))
@@ -128,7 +130,18 @@ learn_function <- function(hist) {
   
   
   return(list("Pn" = Pn_output, "VTB" = VTB_output, "smokes" = smokes_output, "temperature" = temp_output,
-              "TB" = TB_output, "BR" = BR_output, "LC" = LC_output, "Dy" = Dy_output, "Xray" = Xray_output))
-  
+              "TB" = TB_output, "BR" = BR_output, "LC" = LC_output, "Dy" = list("LC_0" = list("BR_0" = Dy_output[[1]], 
+                                                                                              "BR_1" = Dy_output[[2]]),
+                                                                                "LC_1" = list("BR_0" = Dy_output[[3]],
+                                                                                              "BR_1" = Dy_output[[4]])), 
+              "Xray" = list("Pn_0" = list("TB_0" = list("LC_0" = Xray_output[[1]], "LC_1" = Xray_output[[2]]),
+                                          "TB_1" = list("LC_0" = Xray_output[[3]], "LC_1" = Xray_output[[5]])),
+                            "Pn_1" = list("TB_0" = list("LC_0" = Xray_output[[4]], "LC_1" = Xray_output[[7]]),
+                                          "TB_1" = list("LC_0" = Xray_output[[6]], "LC_1" = Xray_output[[8]])))))
+                            
+  Dy_output <- data.frame("given_LC_0_Br_0" = c(Dy_0_given_LC_0_Br_0, Dy_1_given_LC_0_Br_0),
+                          "given_LC_0_Br_1" = c(Dy_0_given_LC_0_Br_1, Dy_1_given_LC_0_Br_1),
+                          "given_LC_1_Br_0" = c(Dy_0_given_LC_1_Br_0, Dy_1_given_LC_1_Br_0),
+                          "given_LC_1_Br_1" = c(Dy_0_given_LC_1_Br_1, Dy_1_given_LC_1_Br_1))
   
 }
