@@ -6,26 +6,26 @@ learn_function <- function(hist) {
   
   # Pneumonia: 
   
-  Pn_0 <- length(which[hist[,1] == 0])
-  Pn_1 <- length(which[hist[,1] == 1])
-  Pn_output <- data.frame("Pn_0" = Pn_0/10000, "Pn_1" = Pn_1/10000)
+  Pn_0 <- length(which(hist[,1] == 0))
+  Pn_1 <- length(which(hist[,1] == 1))
+  Pn_output <- data.frame("Pn_0" = (Pn_0+1)/10002, "Pn_1" = (Pn_1+1)/10002)
   
   # Creating the VTB-spots matrix 
   VTB_spots_0 <- length(which(hist[,3] == 0))
   VTB_spots_1 <- length(which(hist[,3] == 1))
-  VTB_output <- data.frame("VTB_0" = VTB_spots_0/10000, "VTB_1" = VTB_spots_1/10000) 
+  VTB_output <- data.frame("VTB_0" = (VTB_spots_0+1)/10002, "VTB_1" = (VTB_spots_1+1)/10002) 
   
   # Creating the smokes list-output 
   smokes_0 <- length(which(hist[,5] == 0))
   smokes_1 <- length(which(hist[,5] == 1))
-  smokes_output <- data.frame("smokes_0" = smokes_0/10000, "smokes_1" = smokes_1/10000)
+  smokes_output <- data.frame("smokes_0" = (smokes_0+1)/10002, "smokes_1" = (smokes_1+1)/10002)
   
   # Now for the TB (index 4). REMEMBER: For this function, the first value is the one that is "given". 
   # Investigate this function if something in the future is not working! 
   calculating_one_dependence <- function(hist, given_value, prob_value, given_index, prob_index) {
     VTB_TB_first <- hist[hist[,given_index] == given_value,]
     VTB_TB <- VTB_TB_first[VTB_TB_first[,prob_index] == prob_value,]
-    return(length(VTB_TB[,1])/length(VTB_TB_first[,1]))
+    return((length(VTB_TB[,1])+1)/(length(VTB_TB_first[,1])+2))
   }
   
   TB_0_given_0 <- calculating_one_dependence(hist,0,0,3,4)
@@ -67,7 +67,7 @@ learn_function <- function(hist) {
     LC <- hist[hist[,index_one] == first,]
     LC_Br <- LC[LC[,index_two] == second,]
     Dy_LC_Br <- LC_Br[LC_Br[,index_three] == investigated,]
-    return(length(Dy_LC_Br[,1])/length(LC_Br[,1]))
+    return((length(Dy_LC_Br[,1])+1)/(length(LC_Br[,1])+2))
   }
   
   Dy_0_given_LC_0_Br_0 <- calculating_two_dependencies(hist, 0, 0, 0, 6, 7, 9)
@@ -90,7 +90,7 @@ learn_function <- function(hist) {
     Pn_TB <- Pn[Pn[,index_two] == second,]
     Pn_TB_LC <- Pn_TB[Pn_TB[,index_three] == third,]
     Xray_Pn_TB_LC <- Pn_TB_LC[Pn_TB_LC[,index_four] == investigated,]
-    return(length(Xray_Pn_TB_LC[,1])/length(Pn_TB_LC[,1]))
+    return((length(Xray_Pn_TB_LC[,1])+1)/(length(Pn_TB_LC[,1])+2))
   }
   
   Xray_0_given_Pn_0_TB_0_LC_0 <- calculating_three_dependencies(hist, 0, 0, 0, 0, 1, 4, 6, 8)
@@ -117,7 +117,7 @@ learn_function <- function(hist) {
   Xray_0_given_Pn_1_TB_1_LC_1 <- calculating_three_dependencies(hist, 1, 1, 1, 0, 1, 4, 6, 8)
   Xray_1_given_Pn_1_TB_1_LC_1 <- calculating_three_dependencies(hist, 1, 1, 1, 1, 1, 4, 6, 8)
   
-  Xray_output <- data.fram("given_Pn_0_TB_0_LC_0" = c(Xray_0_given_Pn_0_TB_0_LC_0, Xray_1_given_Pn_0_TB_0_LC_0),
+  Xray_output <- data.frame("given_Pn_0_TB_0_LC_0" = c(Xray_0_given_Pn_0_TB_0_LC_0, Xray_1_given_Pn_0_TB_0_LC_0),
                            "given_Pn_0_TB_0_LC_1" = c(Xray_0_given_Pn_0_TB_0_LC_1, Xray_1_given_Pn_0_TB_0_LC_1),
                            "given_Pn_0_TB_1_LC_0" = c(Xray_0_given_Pn_0_TB_1_LC_0, Xray_1_given_Pn_0_TB_1_LC_0),
                            "given_Pn_1_TB_0_LC_0" = c(Xray_0_given_Pn_1_TB_0_LC_0, Xray_1_given_Pn_1_TB_0_LC_0),
