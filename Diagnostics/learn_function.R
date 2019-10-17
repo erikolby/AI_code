@@ -23,9 +23,9 @@ learn_function <- function(hist) {
   # Now for the TB (index 4). REMEMBER: For this function, the first value is the one that is "given". 
   # Investigate this function if something in the future is not working! 
   calculating_one_dependence <- function(hist, given_value, prob_value, given_index, prob_index) {
-  VTB_TB_first <- hist[hist[,given_index] == given_value,]
-  VTB_TB <- VTB_TB_first[VTB_TB_first[,prob_index] == prob_value,]
-  return(length(VTB_TB[,1])/length(VTB_TB_first[,1]))
+    VTB_TB_first <- hist[hist[,given_index] == given_value,]
+    VTB_TB <- VTB_TB_first[VTB_TB_first[,prob_index] == prob_value,]
+    return(length(VTB_TB[,1])/length(VTB_TB_first[,1]))
   }
   
   TB_0_given_0 <- calculating_one_dependence(hist,0,0,3,4)
@@ -64,10 +64,10 @@ learn_function <- function(hist) {
   
   # Dyspnea (9) depending on lung-cancer (6) and bronchitis(7): 
   calculating_two_dependencies <- function(hist, first, second, investigated, index_one, index_two, index_three) {
-  LC <- hist[hist[,index_one] == first,]
-  LC_Br <- LC[LC[,index_two] == second,]
-  Dy_LC_Br <- LC_Br[LC_Br[,index_three] == investigated,]
-  return(length(Dy_LC_Br[,1])/length(LC_Br[,1]))
+    LC <- hist[hist[,index_one] == first,]
+    LC_Br <- LC[LC[,index_two] == second,]
+    Dy_LC_Br <- LC_Br[LC_Br[,index_three] == investigated,]
+    return(length(Dy_LC_Br[,1])/length(LC_Br[,1]))
   }
   
   Dy_0_given_LC_0_Br_0 <- calculating_two_dependencies(hist, 0, 0, 0, 6, 7, 9)
@@ -85,6 +85,38 @@ learn_function <- function(hist) {
                           "given_LC_1_Br_1" = c(Dy_0_given_LC_1_Br_1, Dy_1_given_LC_1_Br_1))
   
   # X-ray result (8) depending on Pneumonia (1), Tuberculosis (4) and Lung Cancer (6): 
+  calculating_three_dependencies <- function(hist, first, second, third, investigated, index_one, index_two, index_three, index_four) {
+    Pn <- hist[hist[,index_one] == first,]
+    Pn_TB <- Pn[Pn[,index_two] == second,]
+    Pn_TB_LC <- Pn_TB[Pn_TB[,index_three] == third,]
+    Xray_Pn_TB_LC <- Pn_TB_LC[Pn_TB_LC[,index_four] == investigated,]
+    return(length(Xray_Pn_TB_LC[,1])/length(Pn_TB_LC[,1]))
+  }
+  
+  Xray_0_given_Pn_0_TB_0_LC_0 <- calculating_three_dependencies(hist, 0, 0, 0, 0, 1, 4, 6, 8)
+  Xray_1_given_Pn_0_TB_0_LC_0 <- calculating_three_dependencies(hist, 0, 0, 0, 1, 1, 4, 6, 8)
+  
+  Xray_0_given_Pn_0_TB_0_LC_1 <- calculating_three_dependencies(hist, 0, 0, 1, 0, 1, 4, 6, 8)
+  Xray_1_given_Pn_0_TB_0_LC_1 <- calculating_three_dependencies(hist, 0, 0, 1, 1, 1, 4, 6, 8)
+  
+  Xray_0_given_Pn_0_TB_1_LC_0 <- calculating_three_dependencies(hist, 0, 1, 0, 0, 1, 4, 6, 8)
+  Xray_1_given_Pn_0_TB_1_LC_0 <- calculating_three_dependencies(hist, 0, 1, 0, 1, 1, 4, 6, 8)
+  
+  Xray_0_given_Pn_1_TB_0_LC_0 <- calculating_three_dependencies(hist, 1, 0, 0, 0, 1, 4, 6, 8)
+  Xray_1_given_Pn_1_TB_0_LC_0 <- calculating_three_dependencies(hist, 1, 0, 0, 1, 1, 4, 6, 8)
+  
+  Xray_0_given_Pn_0_TB_1_LC_1 <- calculating_three_dependencies(hist, 0, 1, 1, 0, 1, 4, 6, 8)
+  Xray_1_given_Pn_0_TB_1_LC_1 <- calculating_three_dependencies(hist, 0, 1, 1, 1, 1, 4, 6, 8)
+  
+  Xray_0_given_Pn_1_TB_1_LC_0 <- calculating_three_dependencies(hist, 1, 1, 0, 0, 1, 4, 6, 8)
+  Xray_1_given_Pn_1_TB_1_LC_0 <- calculating_three_dependencies(hist, 1, 1, 0, 1, 1, 4, 6, 8)
+  
+  Xray_0_given_Pn_1_TB_0_LC_1 <- calculating_three_dependencies(hist, 1, 0, 1, 0, 1, 4, 6, 8)
+  Xray_1_given_Pn_1_TB_0_LC_1 <- calculating_three_dependencies(hist, 1, 0, 1, 1, 1, 4, 6, 8)
+  
+  Xray_0_given_Pn_1_TB_1_LC_1 <- calculating_three_dependencies(hist, 1, 1, 1, 0, 1, 4, 6, 8)
+  Xray_1_given_Pn_1_TB_1_LC_1 <- calculating_three_dependencies(hist, 1, 1, 1, 1, 1, 4, 6, 8)
+  
   
   
   
