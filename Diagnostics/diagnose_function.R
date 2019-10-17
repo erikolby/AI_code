@@ -27,13 +27,36 @@ diagnose_function <- function(network, cases) {
     working_array[4] <- assign_0_or_1(random_values)
     working_array[6] <- assign_0_or_1(random_values)
     working_array[7] <- assign_0_or_1(random_values)
+    
+    # Calculating the contitional attributes, unsure about how to find probability of temp!!: 
+    calc_p_value <- function(network, working_array) {
+      Pn_old <- network$Pn[[working_array[1]+1]]
+      temp_old <- dnorm(working_array[2], network$temperature[[working_array[1]+1]][1], 
+                      network$temperature[[working_array[1]+1]][2])
+      VTB_old <- network$VTB[[working_array[3]+1]]
+      TB_old <- network$TB[[working_array[3]+1]][working_array[4]+1]
+      Smoke_old <- network$smokes[[working_array[5]+1]]
+      LC_old <- network$LC[[working_array[5]+1]][working_array[6]+1]
+      Br_old <- network$BR[[working_array[5]+1]][working_array[7]+1]
+      Xray_old <- network$Xray[[working_array[1]+1]][[working_array[4]+1]][[working_array[6]+1]][working_array[8]+1]
+      Dy_old <- network$Dy[[working_array[6]+1]][[working_array[7]+1]][working_array[9]+1]
+    
+      P_old <- Pn_old*temp_old*VTB_old*TB_old*Smoke_old*LC_old*Br_old*Xray_old*Dy_old
+      return(P_old)
+    }
+    
     proposed_value <- 0
+    old_value <- working_array[1]
     if (working_array[1] == 0) {
       proposed_value <- 1
     }
-    # Calculating the contitional attributes: 
-    p_old <- network$Pn[1,working_array[1]]*dnorm(working_array[2], network$temperature[[network]]
     
+    P_old <- calc_p_value(network, working_array)
+    working_array[1] <- proposed_value
+    P_new <- calc_p_value(network, working_array)
+    
+    print(P_old)
+    print(P_new)
   }
   
   
