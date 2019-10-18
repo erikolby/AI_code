@@ -5,7 +5,8 @@ diagnose_function <- function(network, cases) {
   output_matrix <- matrix(rep(1,40), ncol = 4)
   # The MCMC Metropolis in Gibbs algorithm: 
   working_array <- numeric(9)
-  
+  store_samples <- matrix(rep(1,17100), ncol = 9)
+    
   assign_0_or_1 <- function(random_values, random_number_index) {
     if (sample(random_values,1) > 0.5) {
       return(1)
@@ -32,7 +33,9 @@ diagnose_function <- function(network, cases) {
     calc_p_value <- function(network, working_array) {
       Pn_old <- network$Pn[[working_array[1]+1]]
       temp_old <- dnorm(working_array[2], network$temperature[[working_array[1]+1]][1], 
-                      network$temperature[[working_array[1]+1]][2])
+                      network$temperature[[working_array[1]+1]][2])/
+        (dnorm(working_array[2], network$temperature[[1]][1], network$temperature[[1]][2])+
+           dnorm(working_array[2], network$temperature[[2]][1], network$temperature[[2]][2]))
       VTB_old <- network$VTB[[working_array[3]+1]]
       TB_old <- network$TB[[working_array[3]+1]][working_array[4]+1]
       Smoke_old <- network$smokes[[working_array[5]+1]]
@@ -55,21 +58,54 @@ diagnose_function <- function(network, cases) {
       working_array[investigated_index] <- proposed_value
       P_new <- calc_p_value(network, working_array)
     
-      if (P_new < P_old) {
-        working_array[investigated_index] <- old_value
+      if (P_new > P_old) {
+        #working_array[investigated_index] <- old_value
+        return(working_array)
       }
-      return(working_array)
+      else {
+        accepting_chance <- P_new/P_old
+        if (accepting_chance > sample(random_values,1)) {
+          return(working_array)
+        }
+        else {
+          working_array[investigated_index] <- old_value
+          return(working_array)
+        }
+      }
+      
     }
     
-    for (k in 1:1000) {
-    # After this one MCMC Metropolis in Gibbs sample has been generated: 
-    working_array <- P_comparision(network, working_array, 1)
-    working_array <- P_comparision(network, working_array, 4)
-    working_array <- P_comparision(network, working_array, 6)
-    working_array <- P_comparision(network, working_array, 7)
+    
+    burnout_index <- 1
+    storing_index <- 1
+    for (k in 1:2000) {
+      # After this one MCMC Metropolis in Gibbs sample has been generated: 
+      working_array <- P_comparision(network, working_array, 1)
+      working_array <- P_comparision(network, working_array, 4)
+      working_array <- P_comparision(network, working_array, 6)
+      working_array <- P_comparision(network, working_array, 7)
+      if (burnout_index > 100) { # If I am changing the burnout period, remember to change the size of the store samples matrix!
+        store_samples[storing_index,] <- working_array
+        storing_index <- storing_index+1
+      }
+      burnout_index <- burnout_index+1
     }
     
-    output_matrix[i,] <- c(working_array[1], working_array[4], working_array[6], working_array[7])
+    final_1_0 <- length(which(store_samples[,1] == 0))
+    final_1_1 <- length(which(store_samples[,1] == 1))
+    
+    final_4_0 <- length(which(store_samples[,4] == 0))
+    final_4_1 <- length(which(store_samples[,4] == 1))
+    
+    final_6_0 <- length(which(store_samples[,6] == 0))
+    final_6_1 <- length(which(store_samples[,6] == 1))
+    
+    final_7_0 <- length(which(store_samples[,7] == 0))
+    final_7_1 <- length(which(store_samples[,7] == 1))
+    
+    
+    output_matrix[i,] <- c(final_1_1/(final_1_1+final_1_0), final_4_1/(final_4_1+final_4_0),
+                           final_6_1/(final_6_1+final_6_0), final_7_1/(final_7_1+final_7_0))
     
   }
   
