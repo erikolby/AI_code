@@ -139,9 +139,5 @@ learn_function <- function(hist) {
                             "Pn_1" = list("TB_0" = list("LC_0" = Xray_output[[4]], "LC_1" = Xray_output[[7]]),
                                           "TB_1" = list("LC_0" = Xray_output[[6]], "LC_1" = Xray_output[[8]])))))
                             
-  Dy_output <- data.frame("given_LC_0_Br_0" = c(Dy_0_given_LC_0_Br_0, Dy_1_given_LC_0_Br_0),
-                          "given_LC_0_Br_1" = c(Dy_0_given_LC_0_Br_1, Dy_1_given_LC_0_Br_1),
-                          "given_LC_1_Br_0" = c(Dy_0_given_LC_1_Br_0, Dy_1_given_LC_1_Br_0),
-                          "given_LC_1_Br_1" = c(Dy_0_given_LC_1_Br_1, Dy_1_given_LC_1_Br_1))
   
 }
