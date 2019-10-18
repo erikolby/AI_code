@@ -44,22 +44,36 @@ diagnose_function <- function(network, cases) {
       P_old <- Pn_old*temp_old*VTB_old*TB_old*Smoke_old*LC_old*Br_old*Xray_old*Dy_old
       return(P_old)
     }
+    P_comparision <- function(network, working_array, investigated_index) {
+      proposed_value <- 0
+      old_value <- working_array[investigated_index]
+      if (working_array[investigated_index] == 0) {
+        proposed_value <- 1
+      }
     
-    proposed_value <- 0
-    old_value <- working_array[1]
-    if (working_array[1] == 0) {
-      proposed_value <- 1
+      P_old <- calc_p_value(network, working_array)
+      working_array[investigated_index] <- proposed_value
+      P_new <- calc_p_value(network, working_array)
+    
+      if (P_new < P_old) {
+        working_array[investigated_index] <- old_value
+      }
+      return(working_array)
     }
     
-    P_old <- calc_p_value(network, working_array)
-    working_array[1] <- proposed_value
-    P_new <- calc_p_value(network, working_array)
+    for (k in 1:1000) {
+    # After this one MCMC Metropolis in Gibbs sample has been generated: 
+    working_array <- P_comparision(network, working_array, 1)
+    working_array <- P_comparision(network, working_array, 4)
+    working_array <- P_comparision(network, working_array, 6)
+    working_array <- P_comparision(network, working_array, 7)
+    }
     
-    print(P_old)
-    print(P_new)
+    output_matrix[i,] <- c(working_array[1], working_array[4], working_array[6], working_array[7])
+    
   }
   
-  
+  return(output_matrix)
   
   
 }
