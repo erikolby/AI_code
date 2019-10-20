@@ -7,7 +7,6 @@ learn_function <- function(hist) {
   # NOTE: which function with two or more statements can be used, just put one & between them. 
   
   # Pneumonia: 
-  
   Pn_0 <- length(which(hist[,1] == 0))
   Pn_1 <- length(which(hist[,1] == 1))
   Pn_output <- data.frame("Pn_0" = (Pn_0+1)/10002, "Pn_1" = (Pn_1+1)/10002)
@@ -23,7 +22,6 @@ learn_function <- function(hist) {
   smokes_output <- data.frame("smokes_0" = (smokes_0+1)/10002, "smokes_1" = (smokes_1+1)/10002)
   
   # Now for the TB (index 4). REMEMBER: For this function, the first value is the one that is "given". 
-  # Investigate this function if something in the future is not working! 
   calculating_one_dependence <- function(hist, given_value, prob_value, given_index, prob_index) {
     VTB_TB_first <- hist[hist[,given_index] == given_value,]
     VTB_TB <- VTB_TB_first[VTB_TB_first[,prob_index] == prob_value,]
@@ -41,7 +39,6 @@ learn_function <- function(hist) {
   TB_output <- data.frame("given_VTB_0" = c(TB_0_given_0, TB_1_given_0), "given_VTB_1" = c(TB_0_given_1, TB_1_given_1))
   
   # Bronchitis depending on smoke: 
-  
   BR_0_given_0 <- calculating_one_dependence(hist,0,0,5,7)
   BR_1_given_0 <- calculating_one_dependence(hist,0,1,5,7)
   BR_0_given_1 <- calculating_one_dependence(hist,1,0,5,7)
@@ -50,7 +47,6 @@ learn_function <- function(hist) {
   BR_output <- data.frame("given_smokes_0" = c(BR_0_given_0, BR_1_given_0), "given_smokes_1" = c(BR_0_given_1, BR_1_given_1))
   
   # Lung cancer depending on smoke: 
-  
   LC_0_given_0 <- calculating_one_dependence(hist,0,0,5,6)
   LC_1_given_0 <- calculating_one_dependence(hist,0,1,5,6)
   LC_0_given_1 <- calculating_one_dependence(hist,1,0,5,6)
