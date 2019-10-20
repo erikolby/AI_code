@@ -1,4 +1,4 @@
-learn_function <- function(hist) {
+learn <- function(hist) {
   # My thoughts on this is to in this learn function create a network by analyzing the historical cases. 
   # The probability of the binary cases should be calculated from the hist diagram corresponding to the searched 
   # distribution. The normal distributed attribute should be fitted to a normal distribution and the values for the 
